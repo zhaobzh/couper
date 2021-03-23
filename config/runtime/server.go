@@ -94,7 +94,8 @@ func NewServerConfiguration(
 	noopReq, _ := http.NewRequest(http.MethodGet, "https://couper.io", nil)
 	noopResp := httptest.NewRecorder().Result()
 	noopResp.Request = noopReq
-	confCtx := conf.Context.WithClientRequest(noopReq).WithBeresps(noopResp).HCLContext()
+	evalContext := conf.Context.Value(eval.ContextType).(*eval.Context)
+	confCtx := evalContext.WithClientRequest(noopReq).WithBeresps(noopResp).HCLContext()
 
 	accessControls, err := configureAccessControls(conf, confCtx)
 	if err != nil {
@@ -568,7 +569,7 @@ func configureProtectedHandler(m ac.Map, errTpl *errors.Template, parentAC, hand
 		acList = append(acList, ac.ListItem{Func: m[acName], Name: acName})
 	}
 	if len(acList) > 0 {
-		return hac.NewAccessControl(h, errTpl, acList)
+		return hac.NewAccessControl(h, nil, acList)
 	}
 	return h
 }
