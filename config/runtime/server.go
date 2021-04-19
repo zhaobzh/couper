@@ -542,7 +542,7 @@ func configureProtectedHandler(m ACDefinitions, errTpl *errors.Template,
 	for _, acName := range parentAC.Merge(handlerAC).List() {
 		m.MustExist(acName)
 		names = append(names, acName)
-		list = append(list, ac.ListItem{Func: m[acName].ValidateFn, Name: acName})
+		list = append(list, ac.NewItem(acName, m[acName].Control))
 	}
 	if len(list) > 0 {
 		return hac.NewAccessControl(h, newErrorHandler(errTpl, m, names...), list)
