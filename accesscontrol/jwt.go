@@ -39,7 +39,6 @@ type JWT struct {
 	algorithm      Algorithm
 	claims         map[string]interface{}
 	claimsRequired []string
-	ignoreExp      bool
 	source         JWTSource
 	hmacSecret     []byte
 	name           string
