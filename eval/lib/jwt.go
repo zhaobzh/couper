@@ -34,7 +34,8 @@ func (e *JwtSigningError) Error() string {
 	return e.error.Error()
 }
 
-func NewJwtSignFunction(jwtSigningProfiles []*config.JWTSigningProfile, confCtx *hcl.EvalContext) function.Function {
+func NewJwtSignFunction(ctx *hcl.EvalContext, jwtSigningProfiles []*config.JWTSigningProfile,
+	evalFn func(*hcl.EvalContext, hcl.Expression) (cty.Value, hcl.Diagnostics)) function.Function {
 	signingProfiles := make(map[string]*config.JWTSigningProfile)
 	for _, sp := range jwtSigningProfiles {
 		signingProfiles[sp.Name] = sp
@@ -60,16 +61,16 @@ func NewJwtSignFunction(jwtSigningProfiles []*config.JWTSigningProfile, confCtx 
 
 			// get key or secret
 			var keyData []byte
+			var path string
 			if signingProfile.KeyFile != "" {
-				p, err := filepath.Abs(signingProfile.KeyFile)
+				path, err = filepath.Abs(signingProfile.KeyFile)
 				if err != nil {
 					return cty.StringVal(""), err
 				}
-				content, err := ioutil.ReadFile(p)
+				keyData, err = ioutil.ReadFile(path)
 				if err != nil {
 					return cty.StringVal(""), err
 				}
-				keyData = content
 			} else if signingProfile.Key != "" {
 				keyData = []byte(signingProfile.Key)
 			}
@@ -82,11 +83,11 @@ func NewJwtSignFunction(jwtSigningProfiles []*config.JWTSigningProfile, confCtx 
 
 			// get claims from signing profile
 			if signingProfile.Claims != nil {
-				c, diags := seetie.ExpToMap(confCtx, signingProfile.Claims)
+				v, diags := evalFn(ctx, signingProfile.Claims)
 				if diags.HasErrors() {
 					return cty.StringVal(""), diags
 				}
-				defaultClaims = c
+				defaultClaims = seetie.ValueToMap(v)
 			}
 
 			for k, v := range defaultClaims {

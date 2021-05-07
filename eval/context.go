@@ -205,7 +205,7 @@ func (c *Context) HCLContext() *hcl.EvalContext {
 // updateFunctions recreates the listed functions with latest evaluation context.
 func updateFunctions(ctx *Context) {
 	if len(ctx.profiles) > 0 {
-		jwtfn := lib.NewJwtSignFunction(ctx.profiles, ctx.eval)
+		jwtfn := lib.NewJwtSignFunction(ctx.eval, ctx.profiles, Value)
 		ctx.eval.Functions[lib.FnJWTSign] = jwtfn
 	}
 	if len(ctx.saml) > 0 {

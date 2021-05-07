@@ -122,13 +122,14 @@ func (oa *OAuth2) getCredentials(req *http.Request) (*OAuth2Credentials, error) 
 	}
 
 	evalContext, _ := req.Context().Value(eval.ContextType).(*eval.Context)
+	hclCtx := evalContext.HCLContext()
 
 	id, idOK := content.Attributes["client_id"]
-	idv, _ := id.Expr.Value(evalContext.HCLContext())
+	idv, _ := eval.Value(hclCtx, id.Expr)
 	clientID := seetie.ValueToString(idv)
 
 	secret, secretOK := content.Attributes["client_secret"]
-	secretv, _ := secret.Expr.Value(evalContext.HCLContext())
+	secretv, _ := eval.Value(hclCtx, secret.Expr)
 	clientSecret := seetie.ValueToString(secretv)
 
 	if !idOK || !secretOK {
@@ -138,13 +139,13 @@ func (oa *OAuth2) getCredentials(req *http.Request) (*OAuth2Credentials, error) 
 	var scope, teAuthMethod *string
 
 	if v, ok := content.Attributes["scope"]; ok {
-		ctyVal, _ := v.Expr.Value(evalContext.HCLContext())
+		ctyVal, _ := eval.Value(hclCtx, v.Expr)
 		strVal := strings.TrimSpace(seetie.ValueToString(ctyVal))
 		scope = &strVal
 	}
 
 	if v, ok := content.Attributes["token_endpoint_auth_method"]; ok {
-		ctyVal, _ := v.Expr.Value(evalContext.HCLContext())
+		ctyVal, _ := eval.Value(hclCtx, v.Expr)
 		strVal := strings.TrimSpace(seetie.ValueToString(ctyVal))
 		teAuthMethod = &strVal
 	}

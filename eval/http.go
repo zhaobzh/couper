@@ -141,7 +141,7 @@ func ApplyRequestContext(ctx context.Context, body hcl.Body, req *http.Request) 
 	// apply query params in hierarchical and logical order: delete, set, add
 	attr, ok := attrs[attrDelQueryParams]
 	if ok {
-		val, attrDiags := attr.Expr.Value(httpCtx)
+		val, attrDiags := Value(httpCtx, attr.Expr)
 		if seetie.SetSeverityLevel(attrDiags).HasErrors() {
 			return attrDiags
 		}
@@ -153,7 +153,7 @@ func ApplyRequestContext(ctx context.Context, body hcl.Body, req *http.Request) 
 
 	attr, ok = attrs[attrSetQueryParams]
 	if ok {
-		val, attrDiags := attr.Expr.Value(httpCtx)
+		val, attrDiags := Value(httpCtx, attr.Expr)
 		if seetie.SetSeverityLevel(attrDiags).HasErrors() {
 			return attrDiags
 		}
@@ -167,7 +167,7 @@ func ApplyRequestContext(ctx context.Context, body hcl.Body, req *http.Request) 
 
 	attr, ok = attrs[attrAddQueryParams]
 	if ok {
-		val, attrDiags := attr.Expr.Value(httpCtx)
+		val, attrDiags := Value(httpCtx, attr.Expr)
 		if seetie.SetSeverityLevel(attrDiags).HasErrors() {
 			return attrDiags
 		}
@@ -265,7 +265,7 @@ func getFormParams(ctx *hcl.EvalContext, req *http.Request, attrs map[string]*hc
 func evalURLPath(req *http.Request, attrs map[string]*hcl.Attribute, httpCtx *hcl.EvalContext) error {
 	path := req.URL.Path
 	if pathAttr, ok := attrs[attrPath]; ok {
-		pathValue, _ := pathAttr.Expr.Value(httpCtx)
+		pathValue, _ := Value(httpCtx, pathAttr.Expr)
 		if str := seetie.ValueToString(pathValue); str != "" {
 			// TODO: Check for a valid absolute path
 			if i := strings.Index(str, "#"); i >= 0 {
@@ -328,7 +328,7 @@ func applyHeaderOps(attrs map[string]*hcl.Attribute, names []string, httpCtx *hc
 				continue
 			}
 
-			val, attrDiags := attr.Expr.Value(httpCtx)
+			val, attrDiags := Value(httpCtx, attr.Expr)
 			if seetie.SetSeverityLevel(attrDiags).HasErrors() {
 				return attrDiags
 			}
@@ -372,7 +372,7 @@ func GetAttribute(ctx *hcl.EvalContext, content *hcl.BodyContent, name string) (
 		return "", nil
 	}
 
-	val, diags := attr[name].Expr.Value(ctx)
+	val, diags := Value(ctx, attr[name].Expr)
 	if diags.HasErrors() {
 		return "", diags
 	}
@@ -383,7 +383,7 @@ func GetAttribute(ctx *hcl.EvalContext, content *hcl.BodyContent, name string) (
 func GetBody(ctx *hcl.EvalContext, content *hcl.BodyContent) (string, string, error) {
 	attr, ok := content.Attributes["json_body"]
 	if ok {
-		val, err := attr.Expr.Value(ctx)
+		val, err := Value(ctx, attr.Expr)
 		if err != nil {
 			return "", "", err
 		}
@@ -398,7 +398,7 @@ func GetBody(ctx *hcl.EvalContext, content *hcl.BodyContent) (string, string, er
 
 	attr, ok = content.Attributes["form_body"]
 	if ok {
-		val, err := attr.Expr.Value(ctx)
+		val, err := Value(ctx, attr.Expr)
 		if err != nil {
 			return "", "", err
 		}
@@ -419,7 +419,7 @@ func GetBody(ctx *hcl.EvalContext, content *hcl.BodyContent) (string, string, er
 
 	attr, ok = content.Attributes["body"]
 	if ok {
-		val, err := attr.Expr.Value(ctx)
+		val, err := Value(ctx, attr.Expr)
 		if err != nil {
 			return "", "", err
 		}
