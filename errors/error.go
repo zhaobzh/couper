@@ -2,6 +2,7 @@ package errors
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 )
 
@@ -113,6 +114,10 @@ func (e *Error) LogError() string {
 
 // HTTPStatus returns the configured http status code this error should be served with.
 func (e *Error) HTTPStatus() int {
+	if e.httpStatus == 0 {
+		e.httpStatus = http.StatusInternalServerError
+	}
+
 	return e.httpStatus
 }
 
