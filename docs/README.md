@@ -337,6 +337,8 @@ context.
 | `json_encode`      | Returns a JSON serialization of the given value. |
 | `jwt_sign`         | jwt_sign creates and signs a JSON Web Token (JWT) from information from a referenced [JWT Signing Profile Block](#jwt-signing-profile-block) and additional claims provided as a function parameter. |
 | `merge`            | Deep-merges two or more of either objects or tuples. `null` arguments are ignored. A `null` attribute value in an object removes the previous attribute value. An attribute value with a different type than the current value is set as the new value. `merge()` with no parameters returns `null`. |
+| `oauth_code_verifier` | Creates an OAuth2 PKCE code verifier, as specified in RFC 7636. Multiple calls of this function in the same client request context return the same value. |
+| `oauth_code_challenge` | Creates an OAuth2 PKCE code challenge from the same code verifier created by `oauth_code_verifier()` using the given code challenge method (valid values: `S256` or `plain`), as specified in RFC 7636. |
 | `saml_sso_url`     | Creates a SAML SingleSignOn URL (including the `SAMLRequest` parameter) from a referenced [SAML Block](#saml-block). |
 | `to_lower`         | Converts a given string to lowercase. |
 | `to_upper`         | Converts a given string to uppercase. |
@@ -367,6 +369,9 @@ x = merge({"k1": 1}, [2])                      // -> error: cannot mix object wi
 x = merge([1], 2)                              // -> error: cannot mix tuple with primitive value
 
 token = jwt_sign("MyJwt", {"sub": "abc12345"})
+
+cv = oauth_code_verifier()
+cc = oauth_code_challenge("S256")
 
 url = saml_sso_url("MySaml")
 
