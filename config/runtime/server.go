@@ -410,7 +410,7 @@ func configureAccessControls(conf *config.Couper, confCtx *hcl.EvalContext) (ACD
 
 		for _, jwtConf := range conf.Definitions.JWT {
 			if _, err := errors.ValidateJWTKey(jwtConf.SignatureAlgorithm, jwtConf.Key, jwtConf.KeyFile); err != nil {
-				return nil, err
+				return nil, errors.Configuration.Message(err.Error())
 			}
 
 			var claims map[string]interface{}
@@ -441,7 +441,7 @@ func configureAccessControls(conf *config.Couper, confCtx *hcl.EvalContext) (ACD
 
 		for _, jwtConf := range conf.Definitions.JWTSigningProfile {
 			if _, err := errors.ValidateJWTKey(jwtConf.SignatureAlgorithm, jwtConf.Key, jwtConf.KeyFile); err != nil {
-				return nil, err
+				return nil, errors.Configuration.Message(err.Error())
 			}
 		}
 
