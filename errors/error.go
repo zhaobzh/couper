@@ -37,7 +37,7 @@ func Equals(a, b error) bool {
 		return a == b
 	}
 	return aerr.synopsis == berr.synopsis &&
-		strings.Join(aerr.kinds, "") == strings.Join(aerr.kinds, "")
+		strings.Join(aerr.kinds, "") == strings.Join(berr.kinds, "")
 }
 
 // Status configures the http status-code which will be
@@ -107,6 +107,9 @@ func (e *Error) LogError() string {
 	msg := appendMsg(e.synopsis, e.label, e.message)
 
 	if e.inner != nil {
+		if innr, ok := e.inner.(GoError); ok {
+			return appendMsg(msg, innr.LogError())
+		}
 		msg = appendMsg(msg, e.inner.Error())
 	}
 	return msg
