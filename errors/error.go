@@ -106,6 +106,9 @@ func (e *Error) LogError() string {
 	msg := appendMsg(e.synopsis, e.label, e.message)
 
 	if e.inner != nil {
+		if innr, ok := e.inner.(GoError); ok {
+			return appendMsg(msg, innr.LogError())
+		}
 		msg = appendMsg(msg, e.inner.Error())
 	}
 	return msg
